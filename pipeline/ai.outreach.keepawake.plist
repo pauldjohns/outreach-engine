@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Keeps the Mac awake for the duration of the outreach run. Without this the system
+sleeps (pmset shows sleep enabled) and launchd stops firing - so the engine would
+miss most recipients' windows, and a Mac in a US timezone could NEVER serve UK/EU (their
+morning is 00:00-04:00 local). caffeinate -dis holds display+idle+system sleep;
+-i (idle) holds even on BATTERY, -s adds system-sleep prevention on AC. KeepAlive
+restarts it if it exits. Runs until you unload this agent. STILL: keep on AC - a
+closed lid on battery can force sleep regardless. Runs until you unload the agent.
+
+INSTALL (done by pipeline/install_engine.sh):
+  cp pipeline/ai.outreach.keepawake.plist ~/Library/LaunchAgents/
+  launchctl load ~/Library/LaunchAgents/ai.outreach.keepawake.plist
+Stop keeping awake:
+  launchctl unload ~/Library/LaunchAgents/ai.outreach.keepawake.plist
+Keep the Mac plugged into AC (caffeinate -s only holds on AC).
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.outreach.keepawake</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/caffeinate</string>
+    <string>-dis</string>
+  </array>
+
+  <key>KeepAlive</key>
+  <true/>
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>

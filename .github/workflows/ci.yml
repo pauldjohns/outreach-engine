@@ -1,0 +1,53 @@
+name: CI
+
+# Runs on every push to main and every PR. This pipeline mails REAL PEOPLE, so the gate guards
+# the things a bad change breaks silently: send dedup (nobody emailed twice), the one-per-domain
+# rule, the merge-field contract (an unfillable field mails a blank), and the timezone scheduler.
+# Tests are offline — no Gmail auth, no Apollo key, no network — so CI needs no secrets.
+#
+# This repo holds NO contact data - worklists, send logs and credentials are gitignored.
+# test_config_integrity.py fails the build if a credential-shaped file or a hardcoded key
+# is ever committed.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Syntax-check every pipeline module
+        run: python -m compileall -q pipeline
+
+      - name: Offline unit tests
+        # test_send.py, if it is ever added, is a LIVE Gmail smoke test — never run it here.
+        run: |
+          fail=0
+          for t in pipeline/test_*.py; do
+            [ "$t" = "pipeline/test_send.py" ] && continue
+            echo "== $t =="
+            python3 "$t" || fail=1
+          done
+          exit $fail
+
+      - name: Sender ships blocked unless deliberately armed
+        # Not a hard failure: go.sh flips these when the engine is armed and the change is
+        # committed. This surfaces the live/blocked state in the build log so it is never a
+        # surprise which one is on main.
+        run: |
+          python3 - <<'PY'
+          import json
+          c = json.load(open("outreach/send/config.json"))
+          state = "LIVE" if (c.get("dry_run") is False and c.get("template_approved") is True) else "blocked"
+          print(f"::notice::sender on main is {state} "
+                f"(dry_run={c.get('dry_run')}, template_approved={c.get('template_approved')}, "
+                f"daily_cap={c.get('daily_cap')})")
+          PY

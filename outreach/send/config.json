@@ -1,0 +1,65 @@
+{
+  "_comment": "Public copy of the shipped config. THREE gates to send live: dry_run:false AND template_approved:true AND real copy in every template. This copy ships with the first two OFF and a placeholder identity — set them deliberately. Sourcing is headless via pipeline/apollo_pull.py (Apollo REST key in ~/.config/<campaign>/apollo.env).",
+  "dry_run": true,
+  "template_approved": false,
+  "from_address": "sender@example.com",
+  "from_name": "Your Name",
+  "reply_to": "sender@example.com",
+  "_identity_note": "from_address/reply_to must be the mailbox the OAuth token belongs to. If you run two campaigns off one address, give each its own token directory and never run both at once: each counts its daily cap from its own send log, so concurrent runs stack on one sending reputation.",
+  "worklist": "outreach/worklist_review.csv",
+  "templates": {
+    "REV_A_staging": "outreach/send/templates/review_a_staging.md",
+    "REV_B_bugreports": "outreach/send/templates/review_b_bugreports.md",
+    "REV_C_repro": "outreach/send/templates/review_c_repro.md"
+  },
+  "segments": [
+    "REV_A_staging",
+    "REV_B_bugreports",
+    "REV_C_repro"
+  ],
+  "one_per_domain": true,
+  "_domain_note": "One send per company domain, ever. Identical copy landing on several mailboxes in one corporate tenant is what trips a shared spam filter. Freemail is exempt.",
+  "require_email_valid": true,
+  "skip_role_addresses": true,
+  "tz_scheduler": true,
+  "default_timezone": "America/New_York",
+  "target_hour": 9,
+  "window_before_hours": 1,
+  "window_after_hours": 2,
+  "runner_cadence_minutes": 30,
+  "daily_cap": 100,
+  "jitter_seconds": [
+    120,
+    360
+  ],
+  "send_windows": [
+    [
+      "08:00",
+      "17:00"
+    ]
+  ],
+  "bounce_rate_halt": 0.05,
+  "bounce_window": 100,
+  "bounce_burst": [
+    4,
+    10
+  ],
+  "_breaker_note": "5% (vs the sibling campaign's 6%) because Apollo corporate email bounces harder than commit-history addresses. Burst stays [4,10]: [3,10] false-trips across overlapping windows. NOTE the signal is censored - M365/Workspace quarantine returns no NDR, so the breaker cannot see spam-foldering.",
+  "zone_quota": true,
+  "eu_share": 0.5,
+  "_schedule_note": "Follow-the-sun is emergent, not scripted: tz_scheduler mails everyone at 08:00-11:00 THEIR local time, so EU sends overnight for a US-based operator and the Americas follow through the morning. zone_quota then caps each UTC-offset bucket's share of the daily cap -- eu_share splits 50/50 between Europe and the Americas, then evenly across the zones with supply. A region that cannot fill its budget donates the slack, so fairness never costs volume.",
+  "breaker_enabled": false,
+  "_breaker_disabled_note": "The automatic halt ships disabled. Bounces are still scanned and hard-bounced addresses are still suppressed, and the rate stays on the dashboard - only the automatic stop is off, because a binary halt false-trips on small windows (see _throttle_note). Set breaker_enabled true to restore it. Whichever you choose, do not run a cold stream with no brake at all.",
+  "adaptive_throttle": true,
+  "throttle_window": 100,
+  "throttle_min_n": 40,
+  "_throttle_note": "Bounce rate scales the daily cap instead of flipping a halt: >=4% -> 75%, >=7% -> 50%, >=12% -> 25%, >=20% -> stop. Below throttle_min_n sends in the window the rate is noise and the cap stays full -- the binary breaker fired on 3/28 (95% CI ~2-28%) and stopped the campaign for nothing. Reputation harm scales with volume, so throttling is the proportionate response; only a genuinely bad list reaches zero.",
+  "verify_enabled": true,
+  "verify_max_per_run": 150,
+  "_verify_note": "Bouncer mailbox verification, run by pipeline/verify_queue.py as its own chain step before the send. OFF until the one-off pass over the existing queue is reviewed by hand. Only 'undeliverable' is terminal; risky / unknown / deliverable-on-an-accept-all-domain are recorded and stay sendable so the harder rules get set from real bounce outcomes. See method/VERIFY-PLAN.md.",
+  "verify_cull_esps": [
+    "mimecast",
+    "barracuda"
+  ],
+  "_verify_cull_note": "Hosts thrown out pre-send WITHOUT a Bouncer call. 2026-07-21: Mimecast and Barracuda bounced heavily in this campaign's own data. Both are secure email gateways that quarantine silently and return no NDR, so the throttle can never catch them -- pre-send is the only place. Bouncer only ever abstained on them. Reversible: empty the list to send them again."
+}

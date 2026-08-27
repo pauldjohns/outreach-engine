@@ -1,0 +1,49 @@
+# Campaign data. Every file here holds third-party contact PII (names, work email addresses)
+# or send history against real people. It is machine-local and belongs in no repo, public or
+# private. examples/ holds synthetic rows with the same columns.
+outreach/worklist_*.csv
+outreach/send/send_log.csv
+outreach/send/bounces.csv
+outreach/send/suppression.csv
+outreach/send/metrics.json
+outreach/metrics.html
+outreach/send/dryrun/
+data/
+leads/
+store/
+
+# Gmail OAuth secrets - NEVER commit these
+outreach/.gmail/
+.gmail/
+*.env
+client_secret*.json
+token*.json
+
+# Send-system control / scratch (machine-local)
+outreach/send/STOP
+outreach/send/HALT
+outreach/send/LOOP_STOP
+outreach/send/chain.log
+outreach/send/.send.lock
+outreach/send/.chain.lock
+outreach/send/.chain.lock.d/
+outreach/send/.last_poll
+outreach/send/.last_metrics
+outreach/send/.loop.pid
+
+# scratch / regenerable
+archive/work/
+*.DS_Store
+*.gsheet
+__pycache__/
+*.pyc
+
+# Belt and braces: these filenames hold recipient data wherever they are written.
+# Path-based rules above cover the defaults; these cover a relocated output dir.
+*.duckdb
+worklist*.csv
+send_log.csv
+bounces.csv
+suppression.csv
+metrics.json
+!examples/*.csv
