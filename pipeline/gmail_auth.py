@@ -37,7 +37,7 @@ _CANDIDATE_DIRS = [
     # OWN credential dir, deliberately not ~/.config/outreach-engine. go.sh does `rm -f $TOKEN` on
     # re-consent; sharing the dir would delete the sibling campaign's token and leave its headless
     # loop blocked forever in run_local_server(). Same client_secret.json, same address, own token.
-    os.path.expanduser("~/.config/review-outreach"),
+    os.path.expanduser("~/.config/outreach-engine"),
     os.path.join(ROOT, "outreach", ".gmail"),   # in-repo fallbacks (gitignored)
     os.path.join(ROOT, ".gmail"),
 ]

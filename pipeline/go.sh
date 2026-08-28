@@ -10,7 +10,7 @@
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
 SEND="outreach/send"; CFG="$SEND/config.json"
-TOKEN="$HOME/.config/review-outreach/token.json"
+TOKEN="$HOME/.config/outreach-engine/token.json"
 
 echo "== arming the outreach engine =="
 

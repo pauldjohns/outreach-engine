@@ -4,7 +4,7 @@
 Search -> dedup by company -> enrich -> filter -> upsert outreach/worklist_review.csv.
 Runs from cron with no Claude session: authenticates with the Apollo REST key.
 
-  export APOLLO_API_KEY=...            # or ~/.config/review-outreach/apollo.env
+  export APOLLO_API_KEY=...            # or ~/.config/outreach-engine/apollo.env
   python3 pipeline/apollo_pull.py --target 60
   python3 pipeline/apollo_pull.py --target 60 --dry-run     # spends NO credits
 
@@ -25,7 +25,7 @@ import send_outreach as so
 
 OUT = os.path.join(ROOT, "outreach", "worklist_review.csv")
 RAW = os.path.join(ROOT, "data")
-ENV = os.path.expanduser("~/.config/review-outreach/apollo.env")
+ENV = os.path.expanduser("~/.config/outreach-engine/apollo.env")
 BASE = "https://api.apollo.io/api/v1"
 SEARCH = f"{BASE}/mixed_people/api_search"
 ENRICH = f"{BASE}/people/bulk_match"
