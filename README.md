@@ -50,6 +50,7 @@ stops it, and `outreach/send/STOP` is a hard brake honored mid-run.
 
 ```bash
 pip install -r pipeline/requirements-send.txt
+cp .env.example .env      # then fill it in - it is gitignored
 ```
 
 1. Google Cloud project → enable the Gmail API → OAuth consent with scopes `gmail.send` and
